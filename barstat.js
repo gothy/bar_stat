@@ -46,8 +46,11 @@
       return db.hmset("" + partner + "." + day_ts + ".session." + reply, {
         instid: instid,
         browser: browser,
-        ts: cts,
-        ip: req.connection.remoteAddress
+        ts: cts
+      }, function(err, reply) {
+        if (err) {
+          return console.log(err);
+        }
       });
     });
     db.sismember("" + partner + ".users", instid, function(err, reply) {

@@ -36,8 +36,8 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
             instid: instid
             browser: browser
             ts: cts
-            ip: req.connection.remoteAddress
-        }
+        }, (err, reply) =>
+            if err then console.log err
 
     # add to partner users and increment user count if needed
     db.sismember "#{partner}.users", instid, (err, reply) =>
