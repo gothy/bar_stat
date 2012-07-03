@@ -20,6 +20,7 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
     instid = req.params.instid
     partner = req.params.partner
     browser = get_browser_name req.headers?['user-agent']
+    console.log "new session request: #{partner}:#{instid}"
     if not instid or not partner then return
 
     cdate = new Date()

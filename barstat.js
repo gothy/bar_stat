@@ -31,6 +31,7 @@
     instid = req.params.instid;
     partner = req.params.partner;
     browser = get_browser_name((_ref = req.headers) != null ? _ref['user-agent'] : void 0);
+    console.log("new session request: " + partner + ":" + instid);
     if (!instid || !partner) {
       return;
     }
