@@ -60,8 +60,11 @@
         return db.incr("" + partner + "." + day_ts + ".nu_count");
       }
     });
-    db.sadd("" + partner + "." + day_ts + ".users", instid);
-    db.incr("" + partner + "." + day_ts + ".u_count");
+    db.sadd("" + partner + "." + day_ts + ".users", instid, function(err, reply) {
+      if (reply) {
+        return db.incr("" + partner + "." + day_ts + ".u_count");
+      }
+    });
     return res.send('ok');
   });
 
