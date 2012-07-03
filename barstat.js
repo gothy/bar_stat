@@ -50,7 +50,7 @@
         ts: cts
       }, function(err, reply) {
         if (err) {
-          return console.log(err);
+          return console.error(err.stack);
         }
       });
     });
@@ -66,5 +66,9 @@
   });
 
   app.listen(1337);
+
+  process.on('uncaughtException', function(err) {
+    return console.error(err.stack);
+  });
 
 }).call(this);

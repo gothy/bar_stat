@@ -38,7 +38,7 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
             browser: browser
             ts: cts
         }, (err, reply) =>
-            if err then console.log err
+            if err then console.error err.stack
 
     # add to partner users and increment user count if needed
     db.sismember "#{partner}.users", instid, (err, reply) =>
@@ -53,3 +53,7 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
  
 # Start the express app on port 1337.
 app.listen 1337
+
+process.on 'uncaughtException', (err) ->
+    console.error err.stack
+
