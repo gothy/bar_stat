@@ -53,6 +53,7 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
  
 # Start the express app on port 1337.
 app.listen 1337
+console.log 'barstat started', new Date()
 
 process.on 'uncaughtException', (err) ->
     console.error err.stack

@@ -70,6 +70,8 @@
 
   app.listen(1337);
 
+  console.log('barstat started', new Date());
+
   process.on('uncaughtException', function(err) {
     return console.error(err.stack);
   });
