@@ -54,7 +54,7 @@
                 <input type="password" class="span3" placeholder="Enter your secret password">
                 <div class="alert alert-error"></div>
                 <br/>
-                <button type="button" class="btn btn-primary">See stats</button>
+                <button type="submit" class="btn btn-primary">See stats</button>
             </form>
         </div>
 
@@ -93,11 +93,11 @@
             if(needs_auth) {
                 var $auth = $('#auth')
                 $auth.show();
-                $auth.find('button').on('click', function(event) {
+                $auth.find('form').on('submit', function(event) {
                     var pwd = $auth.find('input[type=password]').val()
                     if(!pwd) {
                         $auth.find('.alert').show().html('Specify the password, please.');
-                        return;
+                        return false;
                     }
                     $auth.find('.alert').hide();
                     $.ajax({
@@ -119,6 +119,7 @@
                             }
                         }
                     });
+                    return false;
                 });
             } else {
                 $('#stats').show();
