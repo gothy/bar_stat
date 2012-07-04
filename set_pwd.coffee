@@ -8,10 +8,7 @@ set_pwd = (partner, pwd) ->
         if err 
             console.log err.stack
         else
-            if reply 
-                console.log 'Password successfully set!'
-            else 
-                console.log 'Cannot change password'
+            console.log 'Password successfully set!'
         process.exit()
 
 partner = process.argv[2]

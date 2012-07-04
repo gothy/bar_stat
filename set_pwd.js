@@ -14,11 +14,7 @@
       if (err) {
         console.log(err.stack);
       } else {
-        if (reply) {
-          console.log('Password successfully set!');
-        } else {
-          console.log('Cannot change password');
-        }
+        console.log('Password successfully set!');
       }
       return process.exit();
     });
