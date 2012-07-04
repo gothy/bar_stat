@@ -95,9 +95,11 @@
   });
 
   app.get('/bar_stat/panel/:partner/', function(req, res, next) {
+    var needs_auth;
+    needs_auth = !(req.session.loggedin && req.session.user === req.params.partner);
     return res.render('index.html', {
       partner: req.params.partner,
-      needs_auth: !req.session.loggedin
+      needs_auth: needs_auth
     });
   });
 

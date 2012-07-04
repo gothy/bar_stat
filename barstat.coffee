@@ -83,9 +83,10 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
 
 # partner's homepage
 app.get '/bar_stat/panel/:partner/', (req, res, next) ->
+    needs_auth = not (req.session.loggedin and req.session.user is req.params.partner)
     res.render 'index.html', {
         partner: req.params.partner
-        needs_auth: not req.session.loggedin
+        needs_auth: needs_auth
     }
 
 # login here :)
