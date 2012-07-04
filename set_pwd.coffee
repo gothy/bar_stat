@@ -5,11 +5,13 @@ set_pwd = (partner, pwd) ->
     salt = bcrypt.genSaltSync(10)
     hash = bcrypt.hashSync(pwd, salt)
     db.hset "partner.creds.#{partner}", 'hsecret', hash, (err, reply) ->
-        if reply 
-            console.log 'Password successfully set!'
-        else 
-            console.log 'Cannot change password'
+        if err 
             console.log err.stack
+        else
+            if reply 
+                console.log 'Password successfully set!'
+            else 
+                console.log 'Cannot change password'
         process.exit()
 
 partner = process.argv[2]

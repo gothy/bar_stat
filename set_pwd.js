@@ -11,11 +11,14 @@
     salt = bcrypt.genSaltSync(10);
     hash = bcrypt.hashSync(pwd, salt);
     return db.hset("partner.creds." + partner, 'hsecret', hash, function(err, reply) {
-      if (reply) {
-        console.log('Password successfully set!');
-      } else {
-        console.log('Cannot change password');
+      if (err) {
         console.log(err.stack);
+      } else {
+        if (reply) {
+          console.log('Password successfully set!');
+        } else {
+          console.log('Cannot change password');
+        }
       }
       return process.exit();
     });
