@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>IM+ Bar stats</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="FinamShape">
+
+    <!-- Le styles -->
+    <link href="../../static/css/bootstrap.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 60px; 
+        }
+        div#stats, div#auth {
+            display: none;
+        }
+        div#auth .alert {
+            display: none;
+        }
+        
+    </style>
+    <link href="../../static/css/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="../../static/ico/favicon.ico">
+</head>
+
+<body>
+
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="brand" href="#">IM+ Bar stats</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <h1>Статистика использования IM+ Bar</h1>
+
+        <br/><br/><br/>
+
+        <div id="auth" class="row">
+            <form class="well">
+                <input type="password" class="span3" placeholder="Enter your secret password">
+                <div class="alert alert-error"></div>
+                <br/>
+                <button type="button" class="btn btn-primary">See stats</button>
+            </form>
+        </div>
+
+        <div id="stats" class="row">
+            <div class="span4">
+                Total Users <h1><span id="u_count_total">0</span></h1>
+            </div>
+            <div class="span4">
+                Daily Users 
+                <h1>
+                    <span id="u_count"></span> (<span id="nu_count">0</span> new)
+                </h1>
+            </div>
+            <div class="span4">Daily Sessions <h1> <span id="s_count"></span></h1></div>
+        </div>
+
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../static/js/jquery.min.js"></script>
+    <script src="../../static/js/underscore-min.js"></script>
+    <script src="../../static/js/bootstrap.min.js"></script>
+    <script>
+        var update_stats = function() {
+            $.get('/bar_stat/api/<%=partner%>/usage', function(data, status) {
+                $('#u_count_total').html(data.u_count_total);
+                $('#u_count').html(data.u_count);
+                $('#nu_count').html(data.nu_count);
+                $('#s_count').html(data.s_count);
+            });
+        };
+        (function($){
+            var needs_auth = <%=needs_auth%>;
+            if(needs_auth) {
+                var $auth = $('#auth')
+                $auth.show();
+                $auth.find('button').on('click', function(event) {
+                    var pwd = $auth.find('input[type=password]').val()
+                    if(!pwd) {
+                        $auth.find('.alert').show().html('Specify the password, please.');
+                        return;
+                    }
+                    $auth.find('.alert').hide();
+                    $.ajax({
+                        type: 'GET',
+                        url:'/bar_stat/api/login/<%=partner%>/', 
+                        data: {secret: pwd},
+                        success: function(data, status) {
+                            $('#auth').hide();
+                            $('#stats').show();
+                            update_stats();
+                        },
+                        error: function(xhr, status, error) {
+                            if(xhr.responseText === 'badsecret') {
+                                $auth.find('.alert').show().html('Password is incorrect :(');
+                            } else if(xhr.responseText === 'nouser') {
+                                $auth.find('.alert').show().html('No such user.');
+                            } else if(xhr.responseText === 'nosecret') {
+                                $auth.find('.alert').show().html('Specify the password, please.');
+                            }
+                        }
+                    });
+                });
+            } else {
+                $('#stats').show();
+                update_stats();
+            }
+        })(jQuery);
+    </script>
+
+</body>
+</html>
