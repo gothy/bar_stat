@@ -154,13 +154,12 @@ app.get '/bar_stat/api/:partner/graphdata', (req, res, next) ->
             reply =
                 name: moment(date).format("MMM Do 'YY");
                 data: [returning_u, n_u]
-            console.log replies
             daily_stats.push reply
             cb()
     
     async.forEach dates, get_daily_stats, (err) ->
         if err then console.error err
-        console.log daily_stats
+        
         res.send daily_stats
 
 

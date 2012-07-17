@@ -199,7 +199,6 @@
           name: moment(date).format("MMM Do 'YY"),
           data: [returning_u, n_u]
         };
-        console.log(replies);
         daily_stats.push(reply);
         return cb();
       });
@@ -208,7 +207,6 @@
       if (err) {
         console.error(err);
       }
-      console.log(daily_stats);
       return res.send(daily_stats);
     });
   });
