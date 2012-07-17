@@ -4,6 +4,8 @@ app = express()
 db = require("redis").createClient()
 __ = require 'underscore'
 bcrypt = require 'bcrypt'
+async = require 'async'
+moment = require 'moment'
 
 
 # signed cookies
@@ -46,6 +48,9 @@ get_ts_and_day_ts = (date) ->
 
     return [cts, day_ts]
 
+check_if_needs_auth = (req) ->
+    not (req.session.loggedin and req.session.user is req.params.partner)
+
 # new session
 app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
     instid = req.params.instid
@@ -83,7 +88,7 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
 
 # partner's homepage
 app.get '/bar_stat/panel/:partner/', (req, res, next) ->
-    needs_auth = not (req.session.loggedin and req.session.user is req.params.partner)
+    needs_auth = check_if_needs_auth(req)
     res.render 'index.html', {
         partner: req.params.partner
         needs_auth: needs_auth
@@ -109,9 +114,8 @@ app.get '/bar_stat/api/login/:partner/', (req, res, next) ->
 # fetches data to show
 app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
     partner = req.params.partner
-    if not (req.session.loggedin and req.session.user is partner)
-        res.send 'denied', 401
-    
+    if check_if_needs_auth(req) then res.send 'denied', 401
+
     [ts, day_ts] = get_ts_and_day_ts(new Date())
 
     multi = db.multi()
@@ -128,6 +132,37 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
             s_count: replies[3] || 0
         
         res.send reply
+
+app.get '/bar_stat/api/:partner/graphdata', (req, res, next) ->
+    partner = req.params.partner
+    if check_if_needs_auth(req) then res.send 'denied', 401
+
+    d = new Date()
+    dates = (moment().subtract('days', i).toDate() for i in [14..1])
+    daily_stats = []
+
+    get_daily_stats = (date, cb) ->
+        [ts, day_ts] = get_ts_and_day_ts(date)
+        multi = db.multi()
+        multi.get "#{partner}.#{day_ts}.u_count"
+        multi.get "#{partner}.#{day_ts}.nu_count"
+        multi.exec (err, replies) =>
+            if err then throw err
+            total_u = parseInt(replies[0]) || 0
+            n_u = parseInt(replies[1]) || 0
+            returning_u = total_u - n_u
+            reply =
+                name: moment(date).format("MMM Do 'YY");
+                data: [returning_u, n_u]
+            console.log replies
+            daily_stats.push reply
+            cb()
+    
+    async.forEach dates, get_daily_stats, (err) ->
+        if err then console.error err
+        console.log daily_stats
+        res.send daily_stats
+
 
 # Start the express app on port 1337.
 app.listen 1337

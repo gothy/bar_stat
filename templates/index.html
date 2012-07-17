@@ -14,7 +14,7 @@
         body {
             padding-top: 60px; 
         }
-        div#stats, div#auth {
+        div#stats, div#auth, div#graphics {
             display: none;
         }
         div#auth .alert {
@@ -70,6 +70,11 @@
             </div>
             <div class="span4">Daily Sessions <h1> <span id="s_count"></span></h1></div>
         </div>
+        <hr/>
+        <div id="graphics" class="row">
+            <div class="span12" id="graph">
+            </div>
+        </div>
 
     </div> <!-- /container -->
 
@@ -79,6 +84,7 @@
     <script src="../../static/js/jquery.min.js"></script>
     <script src="../../static/js/underscore-min.js"></script>
     <script src="../../static/js/bootstrap.min.js"></script>
+    <script src="../../static/js/highcharts.js"></script>
     <script>
         var update_stats = function() {
             $.get('/bar_stat/api/<%=partner%>/usage', function(data, status) {
@@ -88,7 +94,80 @@
                 $('#s_count').html(data.s_count);
             });
         };
+        var get_graph_data = function() {
+            $.get('/bar_stat/api/<%=partner%>/graphdata', function(data, status) {
+                var xAxis = [];
+                var new_users = [];
+                var total_users = [];
+                $.each(data, function(idx, item) {
+                    xAxis.push(item.name);
+                    total_users.push(item.data[0]);
+                    new_users.push(item.data[1]);
+                });
+                $('#graphics').show();
+                chart.xAxis[0].categories = xAxis;
+                chart.xAxis[0].setCategories(xAxis, false);
+                chart.addSeries({name: 'Returning users', data: total_users});
+                chart.addSeries({name: 'New users', data: new_users});
+            });
+        };
+
+        var chart;
         (function($){
+            chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'graph',
+                    type: 'column'
+                },
+                title: {
+                    text: 'Bar usage'
+                },
+                xAxis: {
+                    categories: []
+                },
+                yAxis: {
+                    min: 0,
+                    allowDecimals: false,
+                    title: {
+                        text: 'User count'
+                    },
+                    stackLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                        }
+                    }
+                },
+                legend: {
+                    align: 'right',
+                    x: -100,
+                    verticalAlign: 'top',
+                    y: 20,
+                    floating: true,
+                    backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColorSolid) || 'white',
+                    borderColor: '#CCC',
+                    borderWidth: 1,
+                    shadow: false
+                },
+                tooltip: {
+                    formatter: function() {
+                        return '<b>'+ this.x +'</b><br/>'+
+                            this.series.name +': '+ this.y +'<br/>'+
+                            'Total: '+ this.point.stackTotal;
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: true,
+                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                        }
+                    }
+                }
+            });
+
             var needs_auth = <%=needs_auth%>;
             if(needs_auth) {
                 var $auth = $('#auth')
@@ -108,6 +187,7 @@
                             $('#auth').hide();
                             $('#stats').show();
                             update_stats();
+                            get_graph_data();
                         },
                         error: function(xhr, status, error) {
                             if(xhr.responseText === 'badsecret') {
@@ -124,6 +204,7 @@
             } else {
                 $('#stats').show();
                 update_stats();
+                get_graph_data();
             }
         })(jQuery);
     </script>
