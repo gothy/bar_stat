@@ -96,6 +96,8 @@
             setTimeout(update_stats, 30000);
         };
         var get_graph_data = function() {
+            if ('<%=partner%>' === 'overall') return;
+            
             $.get('/bar_stat/api/<%=partner%>/graphdata', function(data, status) {
                 var xAxis = [];
                 var new_users = [];

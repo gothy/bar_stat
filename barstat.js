@@ -112,7 +112,7 @@
   });
 
   app.get('/bar_stat/api/:partner/usage', function(req, res, next) {
-    var day_ts, db, multi, partner, ts, _ref,
+    var day_ts, db, get_partner_stats, partner, sum_reply, ts, _ref,
       _this = this;
     partner = req.params.partner;
     if (utils.check_if_needs_auth(req)) {
@@ -120,23 +120,47 @@
     } else {
       _ref = utils.get_ts_and_day_ts(new Date()), ts = _ref[0], day_ts = _ref[1];
       db = utils.get_db_client();
-      multi = db.multi();
-      multi.scard("" + partner + ".users");
-      multi.get("" + partner + "." + day_ts + ".u_count");
-      multi.get("" + partner + "." + day_ts + ".nu_count");
-      multi.get("" + partner + "." + day_ts + ".s_count");
-      return multi.exec(function(err, replies) {
-        var reply;
+      sum_reply = {
+        u_count_total: 0,
+        u_count: 0,
+        nu_count: 0,
+        s_count: 0
+      };
+      get_partner_stats = function(partner, cb) {
+        var multi;
+        multi = db.multi();
+        multi.scard("" + partner + ".users");
+        multi.get("" + partner + "." + day_ts + ".u_count");
+        multi.get("" + partner + "." + day_ts + ".nu_count");
+        multi.get("" + partner + "." + day_ts + ".s_count");
+        return multi.exec(function(err, replies) {
+          if (err) {
+            cb(err);
+          }
+          sum_reply.u_count_total += parseInt(replies[0] || 0);
+          sum_reply.u_count += parseInt(replies[1] || 0);
+          sum_reply.nu_count += parseInt(replies[2] || 0);
+          sum_reply.s_count += parseInt(replies[3] || 0);
+          return cb();
+        });
+      };
+      return db.smembers("partners", function(err, partners) {
         if (err) {
-          throw err;
+          console.error(err);
+          return res.send('error');
+        } else {
+          if (partner !== 'overall') {
+            partners = [partner];
+          }
+          return async.forEach(partners, get_partner_stats, function(err) {
+            if (err) {
+              console.error(err);
+              return res.send('error', 500);
+            } else {
+              return res.send(sum_reply);
+            }
+          });
         }
-        reply = {
-          u_count_total: replies[0] || 0,
-          u_count: replies[1] || 0,
-          nu_count: replies[2] || 0,
-          s_count: replies[3] || 0
-        };
-        return res.send(reply);
       });
     }
   });
@@ -184,8 +208,10 @@
       return async.forEach(dates, get_daily_stats, function(err) {
         if (err) {
           console.error(err);
+          return res.send('error', 500);
+        } else {
+          return res.send(daily_stats);
         }
-        return res.send(daily_stats);
       });
     }
   });

@@ -44,13 +44,6 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
         
         # add a session record
         db.incr "#{partner}.#{day_ts}.s_count", (err, reply) =>
-            # temporary disabled saving session data
-            # db.hmset "#{partner}.#{day_ts}.session.#{reply}", {
-            #     instid: instid
-            #     browser: browser
-            #     ts: cts
-            # }, (err, reply) =>
-            #     if err then console.error err.stack
 
         # add to partner users and increment user count if needed
         db.sismember "#{partner}.users", instid, (err, reply) =>
@@ -101,21 +94,42 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
     else
         [ts, day_ts] = utils.get_ts_and_day_ts(new Date())
         db = utils.get_db_client()
+        sum_reply =
+            u_count_total: 0
+            u_count: 0
+            nu_count: 0
+            s_count: 0
 
-        multi = db.multi()
-        multi.scard "#{partner}.users"
-        multi.get "#{partner}.#{day_ts}.u_count"
-        multi.get "#{partner}.#{day_ts}.nu_count"
-        multi.get "#{partner}.#{day_ts}.s_count"
-        multi.exec (err, replies) =>
-            if err then throw err
-            reply =
-                u_count_total: replies[0] || 0
-                u_count: replies[1] || 0
-                nu_count: replies[2] || 0
-                s_count: replies[3] || 0
-            
-            res.send reply
+        get_partner_stats = (partner, cb) =>
+            multi = db.multi()
+            multi.scard "#{partner}.users"
+            multi.get "#{partner}.#{day_ts}.u_count"
+            multi.get "#{partner}.#{day_ts}.nu_count"
+            multi.get "#{partner}.#{day_ts}.s_count"
+            multi.exec (err, replies) =>
+                if err then cb err
+                sum_reply.u_count_total += parseInt(replies[0] || 0)
+                sum_reply.u_count += parseInt(replies[1] || 0)
+                sum_reply.nu_count += parseInt(replies[2] || 0)
+                sum_reply.s_count += parseInt(replies[3] || 0)
+                cb()
+
+        db.smembers "partners", (err, partners) =>
+            if err 
+                console.error(err); res.send('error')
+            else
+                # catch a single partner case
+                if partner isnt 'overall' then partners = [partner,]
+                # ---------------------------
+                async.forEach partners, get_partner_stats, (err) =>
+                    if err 
+                        console.error err
+                        res.send 'error', 500
+                    else
+                        res.send sum_reply
+
+
+        
 
 app.get '/bar_stat/api/:partner/graphdata', (req, res, next) ->
     partner = req.params.partner
@@ -144,9 +158,11 @@ app.get '/bar_stat/api/:partner/graphdata', (req, res, next) ->
                 cb()
         
         async.forEach dates, get_daily_stats, (err) ->
-            if err then console.error err
-            
-            res.send daily_stats
+            if err 
+                console.error err
+                res.send 'error', 500
+            else
+                res.send daily_stats
 
 launch = ->
     # Start the express app on port 1337.
