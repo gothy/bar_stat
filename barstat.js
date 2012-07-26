@@ -216,6 +216,72 @@
     }
   });
 
+  app.get('/bar_stat/api/:partner/sumgraphdata', function(req, res, next) {
+    var d, daily_stats, dates, db, get_daily_common_stats, i, partner, partners,
+      _this = this;
+    partner = 'overall';
+    if (utils.check_if_needs_auth(req)) {
+      return res.send('denied', 401);
+    } else {
+      d = new Date();
+      dates = (function() {
+        var _i, _results;
+        _results = [];
+        for (i = _i = 14; _i >= 1; i = --_i) {
+          _results.push(moment().subtract('days', i).toDate());
+        }
+        return _results;
+      })();
+      partners = [];
+      daily_stats = [];
+      db = utils.get_db_client();
+      get_daily_common_stats = function(date, cb) {
+        var day_ts, multi, p, ts, _i, _len, _ref,
+          _this = this;
+        _ref = utils.get_ts_and_day_ts(date), ts = _ref[0], day_ts = _ref[1];
+        multi = db.multi();
+        for (_i = 0, _len = partners.length; _i < _len; _i++) {
+          p = partners[_i];
+          multi.get("" + p + "." + day_ts + ".u_count");
+        }
+        return multi.exec(function(err, replies) {
+          var d_data, i, _j, _ref1;
+          if (err) {
+            throw err;
+          }
+          d_data = {
+            name: moment(date).format("MMM Do 'YY"),
+            data: []
+          };
+          for (i = _j = 0, _ref1 = partners.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+            d_data.data.push({
+              partner: partners[i],
+              val: parseInt(replies[i]) || 0
+            });
+          }
+          daily_stats.push(d_data);
+          return cb();
+        });
+      };
+      return db.smembers("partners", function(err, partners_list) {
+        if (err) {
+          console.error(err);
+          return res.send('error');
+        } else {
+          partners = partners_list;
+          return async.forEach(dates, get_daily_common_stats, function(err) {
+            if (err) {
+              console.error(err);
+              return res.send('error', 500);
+            } else {
+              return res.send(daily_stats);
+            }
+          });
+        }
+      });
+    }
+  });
+
   launch = function() {
     app.listen(1337);
     console.log('barstat started', new Date());

@@ -96,8 +96,10 @@
             setTimeout(update_stats, 30000);
         };
         var get_graph_data = function() {
-            if ('<%=partner%>' === 'overall') return;
-            
+            if ('<%=partner%>' === 'overall') {
+                return get_sum_graph_data();
+            }
+
             $.get('/bar_stat/api/<%=partner%>/graphdata', function(data, status) {
                 var xAxis = [];
                 var new_users = [];
@@ -112,6 +114,30 @@
                 chart.xAxis[0].setCategories(xAxis, false);
                 chart.addSeries({name: 'Returning users', data: total_users});
                 chart.addSeries({name: 'New users', data: new_users});
+            });
+        };
+
+        var get_sum_graph_data = function() {
+            
+            $.get('/bar_stat/api/<%=partner%>/sumgraphdata', function(data, status) {
+                var xAxis = [];
+                var users = {};
+                for(var i = 0; i < data.length; i++) {
+                    var d_data = data[i].data;
+                    xAxis.push(data[i].name); // string date
+                    for (var j = 0; j < d_data.length; j++) {
+                        var item = d_data[j];
+                        var partner = item['partner'];
+                        if (! (partner in users) ) {users[partner] = [];}
+                        users[partner].push(item['val']);
+                    }
+                }
+                $('#graphics').show();
+                chart.xAxis[0].categories = xAxis;
+                chart.xAxis[0].setCategories(xAxis, false);
+                $.each(users, function(partner, data) {
+                    chart.addSeries({name: partner, data: data});
+                });
             });
         };
 

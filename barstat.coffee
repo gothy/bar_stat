@@ -128,9 +128,6 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
                     else
                         res.send sum_reply
 
-
-        
-
 app.get '/bar_stat/api/:partner/graphdata', (req, res, next) ->
     partner = req.params.partner
     if utils.check_if_needs_auth(req) 
@@ -163,6 +160,44 @@ app.get '/bar_stat/api/:partner/graphdata', (req, res, next) ->
                 res.send 'error', 500
             else
                 res.send daily_stats
+
+app.get '/bar_stat/api/:partner/sumgraphdata', (req, res, next) ->
+    partner = 'overall' # force partner name
+    if utils.check_if_needs_auth(req) 
+        res.send 'denied', 401
+    else
+        d = new Date()
+        dates = (moment().subtract('days', i).toDate() for i in [14..1])
+        partners = []
+        daily_stats = []
+        db = utils.get_db_client()
+
+        get_daily_common_stats = (date, cb) ->
+            [ts, day_ts] = utils.get_ts_and_day_ts(date)
+            multi = db.multi()
+            for p in partners
+                multi.get "#{p}.#{day_ts}.u_count"
+            
+            multi.exec (err, replies) =>
+                if err then throw err
+                d_data = {name: moment(date).format("MMM Do 'YY"), data: []}
+                for i in [0..partners.length-1]
+                    d_data.data.push {partner: partners[i], val: parseInt(replies[i]) || 0}
+                daily_stats.push d_data
+                cb()
+
+        db.smembers "partners", (err, partners_list) =>
+            if err 
+                console.error(err); res.send('error')
+            else
+                partners = partners_list
+                async.forEach dates, get_daily_common_stats, (err) ->
+                    if err 
+                        console.error err
+                        res.send 'error', 500
+                    else
+                        res.send daily_stats
+
 
 launch = ->
     # Start the express app on port 1337.
