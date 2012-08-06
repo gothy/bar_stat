@@ -67,7 +67,8 @@
       });
       db.sadd("" + partner + "." + day_ts + ".users", instid, function(err, reply) {
         if (reply) {
-          return db.incr("" + partner + "." + day_ts + ".u_count");
+          db.incr("" + partner + "." + day_ts + ".u_count");
+          return db.incr("" + partner + "." + day_ts + "." + browser + ".u_count");
         }
       });
       return res.send('ok');

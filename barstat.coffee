@@ -51,7 +51,9 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
             if not reply then db.incr "#{partner}.#{day_ts}.nu_count"
         
         db.sadd "#{partner}.#{day_ts}.users", instid, (err, reply) =>
-            if reply then db.incr "#{partner}.#{day_ts}.u_count"
+            if reply 
+                db.incr "#{partner}.#{day_ts}.u_count"
+                db.incr "#{partner}.#{day_ts}.#{browser}.u_count"
 
         res.send 'ok'
 
