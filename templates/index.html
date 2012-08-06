@@ -59,16 +59,22 @@
         </div>
 
         <div id="stats" class="row">
-            <div class="span4">
+            <div class="span3">
                 Total Users <h1><span id="u_count_total">0</span></h1>
             </div>
-            <div class="span4">
+            <div class="span3">
                 Daily Users 
                 <h1>
                     <span id="u_count"></span> (<span id="nu_count">0</span> new)
                 </h1>
             </div>
-            <div class="span4">Daily Sessions <h1> <span id="s_count"></span></h1></div>
+            <div class="span3">Daily Sessions <h1> <span id="s_count"></span></h1></div>
+
+            <div class="span3">
+                Chrome: <span id="chrome_percent"></span><br/>
+                FF: <span id="ff_percent"></span><br/>
+                Opera: <span id="opera_percent"></span><br/>
+            </div>
         </div>
         <hr/>
         <div id="graphics" class="row">
@@ -92,6 +98,16 @@
                 $('#u_count').html(data.u_count);
                 $('#nu_count').html(data.nu_count);
                 $('#s_count').html(data.s_count);
+                var total_browsers_ucount = data.chrome_count + data.ff_count + data.opera_count;
+                $('#chrome_percent').html(
+                    (data.chrome_count/total_browsers_ucount).toFixed(2) * 100 + "%"
+                );
+                $('#ff_percent').html(
+                    (data.ff_count/total_browsers_ucount).toFixed(2) * 100 + "%"
+                );
+                $('#opera_percent').html(
+                    (data.opera_count/total_browsers_ucount).toFixed(2) * 100 + "%"
+                );
             });
             setTimeout(update_stats, 30000);
         };
