@@ -100,13 +100,13 @@
                 $('#s_count').html(data.s_count);
                 var total_browsers_ucount = data.chrome_count + data.ff_count + data.opera_count;
                 $('#chrome_percent').html(
-                    (data.chrome_count/total_browsers_ucount).toFixed(2) * 100 + "%"
+                    (data.chrome_count/total_browsers_ucount * 100).toFixed(2) + "%"
                 );
                 $('#ff_percent').html(
-                    (data.ff_count/total_browsers_ucount).toFixed(2) * 100 + "%"
+                    (data.ff_count/total_browsers_ucount * 100).toFixed(2) + "%"
                 );
                 $('#opera_percent').html(
-                    (data.opera_count/total_browsers_ucount).toFixed(2) * 100 + "%"
+                    (data.opera_count/total_browsers_ucount * 100).toFixed(2) + "%"
                 );
             });
             setTimeout(update_stats, 30000);
