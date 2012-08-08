@@ -7,6 +7,8 @@ async = require 'async'
 moment = require 'moment'
 utils = require './utils'
 
+FeedParser = require('feedparser')
+
 # signed cookies
 app.use express.cookieParser('om nom nom')
 # enable sessions
@@ -209,12 +211,57 @@ app.get '/bar_stat/api/:partner/sumgraphdata', (req, res, next) ->
                     else
                         res.send daily_stats
 
+#MirTesen helper
+app.get '/mtrss/', (req, res, next) ->
+    db = utils.get_db_client()
+    db.get 'mtrss', (err, reply) ->
+        res.set 'Content-Type', 'application/rss+xml'
+        #res.set 'Content-Type', 'text/xml'
+        res.send reply
+
+combine_mt_feed = ->
+    feeds = ['http://smi.mirtesen.ru/blog/rss', 'http://klikabol.mirtesen.ru/blog/rss',
+     'http://showbiz.mirtesen.ru/blog/rss', 'http://zanimatsyaseksom.mirtesen.ru/blog/rss',
+     'http://sam.mirtesen.ru/blog/rss', 'http://sdelaisam.mirtesen.ru/blog/rss',
+     'http://mobilochko.ru/blog/rss', 'http://strasti.mirtesen.ru/blog/rss',
+     'http://turprikol.mirtesen.ru/blog/rss', 'http://mylenta.mirtesen.ru/blog/rss']
+    result = ''
+    rss_template = __.template '''
+    <?xml version="1.0"?> 
+    <rss version="2.0">
+    <channel>
+        <%= articles %>
+    </channel>
+    </rss>
+    '''
+    item_template = __.template '''
+    <item>
+        <title><%=title%></title>
+        <date><%=date%></date>
+        <link><%=link%></link>
+    </item>
+    '''
+
+    feed_extractor = (url, cb) ->
+        parser = new FeedParser()
+        parser.parseUrl url, (error, meta, articles) ->
+            a = articles[0]
+            result += item_template({'date': a.date, 'link': a.link, 'title': a.title})
+            cb()
+
+    async.forEach feeds, feed_extractor, (err) ->
+        result = rss_template({articles: result})
+        db = utils.get_db_client()
+        db.set 'mtrss', result
+
 
 launch = ->
     # Start the express app on port 1337.
     app.listen 1337
     console.log 'barstat started', new Date()
     exports.RUNNING = true
+    combine_mt_feed()
+    setTimeout combine_mt_feed, 600000
 
 if not module.parent 
     launch()
