@@ -59,6 +59,20 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
 
         res.send 'ok'
 
+# new action
+app.get '/bar_stat/:action/:partner/', (req, res, next) ->
+    partner = req.params.partner
+    action = req.params.action
+    console.log "new action request: #{partner}:#{action}"
+    if not action or not partner 
+        res.send('n_e_data', 400)
+    else
+        [cts, day_ts] = utils.get_ts_and_day_ts(new Date())
+        db = utils.get_db_client()
+        
+        # add an action record
+        db.incr "#{partner}.#{day_ts}.#{action}.count", (err, reply) =>
+            res.send 'ok'
 
 # partner's homepage
 app.get '/bar_stat/panel/:partner/', (req, res, next) ->

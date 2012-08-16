@@ -77,6 +77,23 @@
     }
   });
 
+  app.get('/bar_stat/:action/:partner/', function(req, res, next) {
+    var action, cts, day_ts, db, partner, _ref,
+      _this = this;
+    partner = req.params.partner;
+    action = req.params.action;
+    console.log("new action request: " + partner + ":" + action);
+    if (!action || !partner) {
+      return res.send('n_e_data', 400);
+    } else {
+      _ref = utils.get_ts_and_day_ts(new Date()), cts = _ref[0], day_ts = _ref[1];
+      db = utils.get_db_client();
+      return db.incr("" + partner + "." + day_ts + "." + action + ".count", function(err, reply) {
+        return res.send('ok');
+      });
+    }
+  });
+
   app.get('/bar_stat/panel/:partner/', function(req, res, next) {
     var needs_auth;
     needs_auth = utils.check_if_needs_auth(req);
