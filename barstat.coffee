@@ -117,6 +117,7 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
             u_count: 0
             nu_count: 0
             s_count: 0
+            click_count: 0
             chrome_count: 0
             ff_count: 0
             opera_count: 0
@@ -124,9 +125,10 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
         get_partner_stats = (partner, cb) =>
             multi = db.multi()
             multi.scard "#{partner}.users"
-            multi.get "#{partner}.#{day_ts}.u_count"
-            multi.get "#{partner}.#{day_ts}.nu_count"
-            multi.get "#{partner}.#{day_ts}.s_count"
+            multi.get "#{partner}.#{day_ts}.u_count" # user count
+            multi.get "#{partner}.#{day_ts}.nu_count" # new users
+            multi.get "#{partner}.#{day_ts}.s_count" # sessions
+            multi.get "#{partner}.#{day_ts}.click.count" # <click> actions
             multi.get "#{partner}.#{day_ts}.chrome.u_count"
             multi.get "#{partner}.#{day_ts}.ff.u_count"
             multi.get "#{partner}.#{day_ts}.opera.u_count"
@@ -136,9 +138,10 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
                 sum_reply.u_count += parseInt(replies[1] || 0)
                 sum_reply.nu_count += parseInt(replies[2] || 0)
                 sum_reply.s_count += parseInt(replies[3] || 0)
-                sum_reply.chrome_count += parseInt(replies[4] || 0)
-                sum_reply.ff_count += parseInt(replies[5] || 0)
-                sum_reply.opera_count += parseInt(replies[6] || 0)
+                sum_reply.click_count += parseInt(replies[4] || 0)
+                sum_reply.chrome_count += parseInt(replies[5] || 0)
+                sum_reply.ff_count += parseInt(replies[6] || 0)
+                sum_reply.opera_count += parseInt(replies[7] || 0)
                 cb()
 
         db.smembers "partners", (err, partners) =>

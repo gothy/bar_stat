@@ -20,6 +20,10 @@
         div#auth .alert {
             display: none;
         }
+
+        div#click_count_wrapper {
+            display: none;
+        }
         
     </style>
     <link href="../../static/css/bootstrap-responsive.css" rel="stylesheet">
@@ -59,21 +63,27 @@
         </div>
 
         <div id="stats" class="row">
-            <div class="span3">
+            <div class="span2">
                 Total Users <h1><span id="u_count_total">0</span></h1>
             </div>
-            <div class="span3">
+            <div class="span2">
                 Daily Users 
                 <h1>
-                    <span id="u_count"></span> (<span id="nu_count">0</span> new)
+                    <span id="u_count"></span> 
                 </h1>
+                (<span id="nu_count">0</span> new)
             </div>
-            <div class="span3">Daily Sessions <h1> <span id="s_count"></span></h1></div>
+            <div class="span2">Daily Sessions <h1> <span id="s_count"></span></h1></div>
 
-            <div class="span3">
+            <div class="span2">
+                Browser usage<br/>
                 Chrome: <span id="chrome_percent"></span><br/>
                 FF: <span id="ff_percent"></span><br/>
                 Opera: <span id="opera_percent"></span><br/>
+            </div>
+
+            <div class="span2" id="click_count_wrapper">
+                Clicks today <h1><span id="click_count">0</span></h1>
             </div>
         </div>
         <hr/>
@@ -98,6 +108,11 @@
                 $('#u_count').html(data.u_count);
                 $('#nu_count').html(data.nu_count);
                 $('#s_count').html(data.s_count);
+                $('#click_count').html(data.click_count);
+                if(data.click_count > 0) {
+                    $('#click_count_wrapper').show();
+                }
+                
                 var total_browsers_ucount = data.chrome_count + data.ff_count + data.opera_count;
                 $('#chrome_percent').html(
                     (data.chrome_count/total_browsers_ucount * 100).toFixed(2) + "%"

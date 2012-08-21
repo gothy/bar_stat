@@ -145,6 +145,7 @@
         u_count: 0,
         nu_count: 0,
         s_count: 0,
+        click_count: 0,
         chrome_count: 0,
         ff_count: 0,
         opera_count: 0
@@ -156,6 +157,7 @@
         multi.get("" + partner + "." + day_ts + ".u_count");
         multi.get("" + partner + "." + day_ts + ".nu_count");
         multi.get("" + partner + "." + day_ts + ".s_count");
+        multi.get("" + partner + "." + day_ts + ".click.count");
         multi.get("" + partner + "." + day_ts + ".chrome.u_count");
         multi.get("" + partner + "." + day_ts + ".ff.u_count");
         multi.get("" + partner + "." + day_ts + ".opera.u_count");
@@ -167,9 +169,10 @@
           sum_reply.u_count += parseInt(replies[1] || 0);
           sum_reply.nu_count += parseInt(replies[2] || 0);
           sum_reply.s_count += parseInt(replies[3] || 0);
-          sum_reply.chrome_count += parseInt(replies[4] || 0);
-          sum_reply.ff_count += parseInt(replies[5] || 0);
-          sum_reply.opera_count += parseInt(replies[6] || 0);
+          sum_reply.click_count += parseInt(replies[4] || 0);
+          sum_reply.chrome_count += parseInt(replies[5] || 0);
+          sum_reply.ff_count += parseInt(replies[6] || 0);
+          sum_reply.opera_count += parseInt(replies[7] || 0);
           return cb();
         });
       };
