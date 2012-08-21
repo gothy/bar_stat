@@ -77,7 +77,7 @@
     }
   });
 
-  app.get('/bar_stat/action/:action/:partner/', function(req, res, next) {
+  app.post('/bar_stat/action/:action/:partner/', function(req, res, next) {
     var action, cts, day_ts, db, partner, _ref,
       _this = this;
     partner = req.params.partner;

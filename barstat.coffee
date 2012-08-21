@@ -60,7 +60,7 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
         res.send 'ok'
 
 # new action
-app.get '/bar_stat/action/:action/:partner/', (req, res, next) ->
+app.post '/bar_stat/action/:action/:partner/', (req, res, next) ->
     partner = req.params.partner
     action = req.params.action
     console.log "new action request: #{partner}:#{action}"
