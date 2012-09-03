@@ -288,10 +288,11 @@
             name: moment(date).format("MMM Do 'YY"),
             data: []
           };
-          for (i = _j = 0, _ref1 = partners.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+          for (i = _j = 0, _ref1 = 2 * partners.length - 1; _j <= _ref1; i = _j += 2) {
             d_data.data.push({
-              partner: partners[i],
-              val: parseInt(replies[i]) || 0
+              partner: partners[i / 2],
+              users: parseInt(replies[i]) || 0,
+              clicks: parseInt(replies[i + 1]) || 0
             });
           }
           daily_stats.push(d_data);

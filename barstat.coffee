@@ -214,8 +214,12 @@ app.get '/bar_stat/api/:partner/sumgraphdata', (req, res, next) ->
             multi.exec (err, replies) =>
                 if err then throw err
                 d_data = {name: moment(date).format("MMM Do 'YY"), data: []}
-                for i in [0..partners.length-1]
-                    d_data.data.push {partner: partners[i], val: parseInt(replies[i]) || 0}
+                for i in [0..2*partners.length-1] by 2
+                    d_data.data.push {
+                        partner: partners[i/2], 
+                        users: parseInt(replies[i]) || 0
+                        clicks: parseInt(replies[i+1]) || 0
+                    }
                 daily_stats.push d_data
                 cb()
 

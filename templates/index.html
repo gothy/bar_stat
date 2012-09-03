@@ -159,6 +159,7 @@
             $.get('/bar_stat/api/<%=partner%>/sumgraphdata', function(data, status) {
                 var xAxis = [];
                 var users = {};
+                var clicks = {};
                 for(var i = 0; i < data.length; i++) {
                     var d_data = data[i].data;
                     xAxis.push(data[i].name); // string date
@@ -166,7 +167,9 @@
                         var item = d_data[j];
                         var partner = item['partner'];
                         if (! (partner in users) ) {users[partner] = [];}
-                        users[partner].push(item['val']);
+                        if (! (partner in clicks) ) {clicks[partner] = [];}
+                        users[partner].push(item['users']);
+                        clicks[partner].push(item['clicks']);
                     }
                 }
                 $('#graphics').show();
@@ -174,6 +177,9 @@
                 chart.xAxis[0].setCategories(xAxis, false);
                 $.each(users, function(partner, data) {
                     chart.addSeries({name: partner, data: data});
+                });
+                $.each(clicks, function(partner, data) {
+                    clicks_chart.addSeries({name: partner, data: data});
                 });
             });
         };
