@@ -155,6 +155,7 @@
         };
 
         var get_sum_graph_data = function() {
+            clicks_chart.options.chart['type'] = 'column';
             
             $.get('/bar_stat/api/<%=partner%>/sumgraphdata', function(data, status) {
                 var xAxis = [];
