@@ -179,6 +179,9 @@
                 $.each(users, function(partner, data) {
                     chart.addSeries({name: partner, data: data});
                 });
+
+                clicks_chart.xAxis[0].categories = xAxis;
+                clicks_chart.xAxis[0].setCategories(xAxis, false);
                 $.each(clicks, function(partner, data) {
                     clicks_chart.addSeries({name: partner, data: data});
                 });
