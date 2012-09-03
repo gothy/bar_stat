@@ -173,14 +173,16 @@ app.get '/bar_stat/api/:partner/graphdata', (req, res, next) ->
             multi = db.multi()
             multi.get "#{partner}.#{day_ts}.u_count"
             multi.get "#{partner}.#{day_ts}.nu_count"
+            multi.get "#{partner}.#{day_ts}.click.count"
             multi.exec (err, replies) =>
                 if err then throw err
                 total_u = parseInt(replies[0]) || 0
                 n_u = parseInt(replies[1]) || 0
+                clicks = parseInt(replies[2]) || 0
                 returning_u = total_u - n_u
                 reply =
                     name: moment(date).format("MMM Do 'YY");
-                    data: [returning_u, n_u]
+                    data: [returning_u, n_u, clicks]
                 daily_stats.push reply
                 cb()
         
@@ -207,6 +209,7 @@ app.get '/bar_stat/api/:partner/sumgraphdata', (req, res, next) ->
             multi = db.multi()
             for p in partners
                 multi.get "#{p}.#{day_ts}.u_count"
+                multi.get "#{p}.#{day_ts}.click.count"
             
             multi.exec (err, replies) =>
                 if err then throw err

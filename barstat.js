@@ -221,17 +221,19 @@
         multi = db.multi();
         multi.get("" + partner + "." + day_ts + ".u_count");
         multi.get("" + partner + "." + day_ts + ".nu_count");
+        multi.get("" + partner + "." + day_ts + ".click.count");
         return multi.exec(function(err, replies) {
-          var n_u, reply, returning_u, total_u;
+          var clicks, n_u, reply, returning_u, total_u;
           if (err) {
             throw err;
           }
           total_u = parseInt(replies[0]) || 0;
           n_u = parseInt(replies[1]) || 0;
+          clicks = parseInt(replies[2]) || 0;
           returning_u = total_u - n_u;
           reply = {
             name: moment(date).format("MMM Do 'YY"),
-            data: [returning_u, n_u]
+            data: [returning_u, n_u, clicks]
           };
           daily_stats.push(reply);
           return cb();
@@ -275,6 +277,7 @@
         for (_i = 0, _len = partners.length; _i < _len; _i++) {
           p = partners[_i];
           multi.get("" + p + "." + day_ts + ".u_count");
+          multi.get("" + p + "." + day_ts + ".click.count");
         }
         return multi.exec(function(err, replies) {
           var d_data, i, _j, _ref1;

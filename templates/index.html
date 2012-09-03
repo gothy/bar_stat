@@ -90,6 +90,9 @@
         <div id="graphics" class="row">
             <div class="span12" id="graph">
             </div>
+
+            <div class="span12" id="graph2" style="margin-top: 30px;">
+            </div>
         </div>
 
     </div> <!-- /container -->
@@ -135,16 +138,19 @@
                 var xAxis = [];
                 var new_users = [];
                 var total_users = [];
+                var clicks = [];
                 $.each(data, function(idx, item) {
                     xAxis.push(item.name);
                     total_users.push(item.data[0]);
                     new_users.push(item.data[1]);
+                    clicks.push(item.data[2]);
                 });
                 $('#graphics').show();
                 chart.xAxis[0].categories = xAxis;
                 chart.xAxis[0].setCategories(xAxis, false);
                 chart.addSeries({name: 'Returning users', data: total_users});
                 chart.addSeries({name: 'New users', data: new_users});
+                clicks_chart.addSeries({name: 'Clicks', data: clicks});
             });
         };
 
@@ -173,6 +179,7 @@
         };
 
         var chart;
+        var clicks_charts;
         (function($){
             chart = new Highcharts.Chart({
                 chart: {
@@ -215,6 +222,59 @@
                         return '<b>'+ this.x +'</b><br/>'+
                             this.series.name +': '+ this.y +'<br/>'+
                             'Total: '+ this.point.stackTotal;
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: true,
+                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                        }
+                    }
+                }
+            });
+            
+            clicks_chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'graph2',
+                    type: 'line'
+                },
+                title: {
+                    text: 'IM+ Bar news clicks'
+                },
+                xAxis: {
+                    categories: []
+                },
+                yAxis: {
+                    min: 0,
+                    allowDecimals: false,
+                    title: {
+                        text: 'Click count'
+                    },
+                    stackLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                        }
+                    }
+                },
+                legend: {
+                    align: 'right',
+                    x: -100,
+                    verticalAlign: 'top',
+                    y: 20,
+                    floating: true,
+                    backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColorSolid) || 'white',
+                    borderColor: '#CCC',
+                    borderWidth: 1,
+                    shadow: false
+                },
+                tooltip: {
+                    formatter: function() {
+                        return '<b>'+ this.x +'</b><br/>'+
+                            this.series.name +': '+ this.y;
                     }
                 },
                 plotOptions: {
