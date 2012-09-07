@@ -17,7 +17,7 @@ app.use express.session()
 # support for static files
 app.use '/bar_stat/static/', express.static(__dirname + '/static')
 # to parse uploaded files
-app.use(express.bodyParser({ keepExtensions: false, uploadDir: '/tmp/' }));
+app.use(express.bodyParser({ keepExtensions: false, uploadDir: __dirname + '/uploads/' }));
 # define where the views are
 app.set('views', __dirname + '/templates');
 # define renderer for html files(underscore templates for now)

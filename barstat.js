@@ -30,7 +30,7 @@
 
   app.use(express.bodyParser({
     keepExtensions: false,
-    uploadDir: '/tmp/'
+    uploadDir: __dirname + '/uploads/'
   }));
 
   app.set('views', __dirname + '/templates');
