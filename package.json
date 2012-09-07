@@ -1,0 +1,17 @@
+{
+	"name": "barstat",
+	"description": "dependencies description for barstat",
+	"author": "gothy <dmitry.utkin@gmail.com>",
+	"version": "0.2.0",
+	"dependencies": {
+		"express": "3.0.0rc4 | 3.0.x",
+		"underscore": ">= 1.3.3",
+		"bcrypt": ">= 0.7.2",
+		"async": ">= 0.1.22",
+		"moment": ">= 1.7.0",
+		"node-uuid": ">= 1.3.3",
+		"feedparser": ">= 0.9.15",
+		"redis": ">= 0.7.2"
+	},
+	"engine": "node >= 0.6"
+}
