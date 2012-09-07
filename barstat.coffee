@@ -6,6 +6,7 @@ bcrypt = require 'bcrypt'
 async = require 'async'
 moment = require 'moment'
 utils = require './utils'
+uuid = require 'node-uuid'
 
 FeedParser = require('feedparser')
 
@@ -15,6 +16,8 @@ app.use express.cookieParser('om nom nom')
 app.use express.session()
 # support for static files
 app.use '/bar_stat/static/', express.static(__dirname + '/static')
+# to parse uploaded files
+app.use(express.bodyParser({ keepExtensions: false, uploadDir: '/tmp/' }));
 # define where the views are
 app.set('views', __dirname + '/templates');
 # define renderer for html files(underscore templates for now)
@@ -234,6 +237,50 @@ app.get '/bar_stat/api/:partner/sumgraphdata', (req, res, next) ->
                         res.send 'error', 500
                     else
                         res.send daily_stats
+
+# get upload token
+app.get '/bar_uploads/requestid/:partner/:instid', (req, res, next) ->
+    db = utils.get_db_client()
+    partner = req.params.partner
+    instid = req.params.instid
+
+    # generate unique token for file upload
+    # todo: expiring tokens
+    token = uuid.v1()
+    db.hmset "up.#{token}", {partner: partner, instid: instid}, (err, reply) ->
+        res.send token
+
+# uploading file
+app.post '/bar_uploads/file/:token', (req, res, next) ->
+    db = utils.get_db_client()
+    token = req.params.token
+    instid = req.body.instid
+    partner = req.body.partner
+    file = req.files.fm_file_upload
+    console.log "new upload by #{instid} of #{partner}"
+
+    # todo: cleanup token data and files
+    if file
+        db.hgetall "up.#{token}", (err, reply) =>
+            if reply and (reply.instid is instid) and (reply.partner is partner)
+                db.hmset "up.#{token}", 
+                        {name: file.name, path: file.path, type: file.type}, 
+                        (err, reply) ->
+                    res.send 'ok'
+            else 
+                res.send 'fail'
+    else
+        res.send 'fail'
+
+# getting file
+app.get '/bar_uploads/file/:token', (req, res, next) ->
+    db = utils.get_db_client()
+    token = req.params.token
+
+    db.hgetall "up.#{token}", (err, reply) ->
+        res.set 'Content-Disposition', "attachment; filename=\"#{reply.name}\""
+        res.set 'Content-Type', "#{reply.type}"
+        res.sendfile reply.path
 
 #MirTesen helper
 app.get '/mtrss/', (req, res, next) ->
