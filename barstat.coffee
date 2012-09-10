@@ -281,9 +281,12 @@ app.get '/bar_uploads/file/:token', (req, res, next) ->
     token = req.params.token
 
     db.hgetall "up.#{token}", (err, reply) ->
-        res.set 'Content-Disposition', "attachment; filename=\"#{reply.name}\""
-        res.set 'Content-Type', "#{reply.type}"
-        res.sendfile reply.path
+        if reply
+            res.set 'Content-Disposition', "attachment; filename=\"#{reply.name}\""
+            res.set 'Content-Type', "#{reply.type}"
+            res.sendfile reply.path
+        else
+            res.send 404, 'Not found, sorry!'
 
 #MirTesen helper
 app.get '/mtrss/', (req, res, next) ->

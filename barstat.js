@@ -374,9 +374,13 @@
     db = utils.get_db_client();
     token = req.params.token;
     return db.hgetall("up." + token, function(err, reply) {
-      res.set('Content-Disposition', "attachment; filename=\"" + reply.name + "\"");
-      res.set('Content-Type', "" + reply.type);
-      return res.sendfile(reply.path);
+      if (reply) {
+        res.set('Content-Disposition', "attachment; filename=\"" + reply.name + "\"");
+        res.set('Content-Type', "" + reply.type);
+        return res.sendfile(reply.path);
+      } else {
+        return res.send(404, 'Not found, sorry!');
+      }
     });
   });
 
