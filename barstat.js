@@ -326,15 +326,18 @@
   });
 
   app.get('/bar_uploads/requestid/:partner/:instid', function(req, res, next) {
-    var db, instid, partner, token;
+    var db, instid, multi, partner, token;
     db = utils.get_db_client();
     partner = req.params.partner;
     instid = req.params.instid;
     token = uuid.v1();
-    return db.hmset("up." + token, {
+    multi = db.multi();
+    multi.hmset("up." + token, {
       partner: partner,
       instid: instid
-    }, function(err, reply) {
+    });
+    multi.expire("up." + token, 24 * 3600);
+    return multi.exec(function(err, replies) {
       return res.send(token);
     });
   });

@@ -247,7 +247,10 @@ app.get '/bar_uploads/requestid/:partner/:instid', (req, res, next) ->
     # generate unique token for file upload
     # todo: expiring tokens
     token = uuid.v1()
-    db.hmset "up.#{token}", {partner: partner, instid: instid}, (err, reply) ->
+    multi = db.multi()
+    multi.hmset "up.#{token}", {partner: partner, instid: instid}
+    multi.expire "up.#{token}", 24*3600
+    multi.exec (err, replies) ->
         res.send token
 
 # uploading file
