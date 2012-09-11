@@ -369,6 +369,21 @@
     }
   });
 
+  app.get('/bar_uploads/view/:token', function(req, res, next) {
+    var db, token;
+    db = utils.get_db_client();
+    token = req.params.token;
+    return db.hget("up." + token, 'type', function(err, reply) {
+      if (reply && reply.indexOf('image') >= 0) {
+        return res.render('view_pic.html', {
+          token: req.params.token
+        });
+      } else {
+        return res.redirect("../../file/" + token);
+      }
+    });
+  });
+
   app.get('/bar_uploads/file/:token', function(req, res, next) {
     var db, token;
     db = utils.get_db_client();

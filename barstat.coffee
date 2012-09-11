@@ -275,6 +275,16 @@ app.post '/bar_uploads/file/:token', (req, res, next) ->
     else
         res.send 'fail'
 
+# uploaded file view page
+app.get '/bar_uploads/view/:token', (req, res, next) ->
+    db = utils.get_db_client()
+    token = req.params.token
+    db.hget "up.#{token}", 'type', (err, reply) ->
+        if reply and reply.indexOf('image') >= 0
+            res.render 'view_pic.html', {token: req.params.token}
+        else
+            res.redirect "../../file/#{token}"
+
 # getting file
 app.get '/bar_uploads/file/:token', (req, res, next) ->
     db = utils.get_db_client()
@@ -287,6 +297,7 @@ app.get '/bar_uploads/file/:token', (req, res, next) ->
             res.sendfile reply.path
         else
             res.send 404, 'Not found, sorry!'
+
 
 #MirTesen helper
 app.get '/mtrss/', (req, res, next) ->
