@@ -80,6 +80,7 @@
                 Chrome: <span id="chrome_percent"></span><br/>
                 FF: <span id="ff_percent"></span><br/>
                 Opera: <span id="opera_percent"></span><br/>
+                Safari: <span id="safari_percent"></span><br/>
             </div>
 
             <div class="span2" id="click_count_wrapper">
@@ -125,6 +126,9 @@
                 );
                 $('#opera_percent').html(
                     (data.opera_count/total_browsers_ucount * 100).toFixed(2) + "%"
+                );
+                $('#safari_percent').html(
+                    (data.safari_count/total_browsers_ucount * 100).toFixed(2) + "%"
                 );
             });
             setTimeout(update_stats, 30000);
