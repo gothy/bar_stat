@@ -126,7 +126,6 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
             opera_count: 0
             safari_count: 0
             upload_count: 0
-            preview_count: 0
 
         get_partner_stats = (partner, cb) =>
             multi = db.multi()
@@ -140,7 +139,6 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
             multi.get "#{partner}.#{day_ts}.opera.u_count"
             multi.get "#{partner}.#{day_ts}.safari.u_count"
             multi.get "#{partner}.#{day_ts}.upload.count"
-            multi.get "#{partner}.#{day_ts}.up_preview.count"
             multi.exec (err, replies) =>
                 if err then cb err
                 sum_reply.u_count_total += parseInt(replies[0] || 0)
@@ -153,7 +151,6 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
                 sum_reply.opera_count += parseInt(replies[7] || 0)
                 sum_reply.safari_count += parseInt(replies[8] || 0)
                 sum_reply.upload_count += parseInt(replies[9] || 0)
-                sum_reply.preview_count += parseInt(replies[10] || 0)
                 cb()
 
         db.smembers "partners", (err, partners) =>

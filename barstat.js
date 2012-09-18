@@ -157,8 +157,7 @@
         ff_count: 0,
         opera_count: 0,
         safari_count: 0,
-        upload_count: 0,
-        preview_count: 0
+        upload_count: 0
       };
       get_partner_stats = function(partner, cb) {
         var multi;
@@ -173,7 +172,6 @@
         multi.get("" + partner + "." + day_ts + ".opera.u_count");
         multi.get("" + partner + "." + day_ts + ".safari.u_count");
         multi.get("" + partner + "." + day_ts + ".upload.count");
-        multi.get("" + partner + "." + day_ts + ".up_preview.count");
         return multi.exec(function(err, replies) {
           if (err) {
             cb(err);
@@ -188,7 +186,6 @@
           sum_reply.opera_count += parseInt(replies[7] || 0);
           sum_reply.safari_count += parseInt(replies[8] || 0);
           sum_reply.upload_count += parseInt(replies[9] || 0);
-          sum_reply.preview_count += parseInt(replies[10] || 0);
           return cb();
         });
       };
