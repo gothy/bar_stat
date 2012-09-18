@@ -387,10 +387,8 @@
     token = req.params.token;
     return db.hget("up." + token, 'type', function(err, reply) {
       if (reply && reply.indexOf('image') >= 0) {
-        return db.incr("" + partner + "." + day_ts + ".up_preview.count", function(err, reply) {
-          return res.render('view_pic.html', {
-            token: req.params.token
-          });
+        return res.render('view_pic.html', {
+          token: req.params.token
         });
       } else {
         return res.redirect("../../file/" + token);

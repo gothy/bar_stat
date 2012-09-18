@@ -291,8 +291,7 @@ app.get '/bar_uploads/view/:token', (req, res, next) ->
     token = req.params.token
     db.hget "up.#{token}", 'type', (err, reply) ->
         if reply and reply.indexOf('image') >= 0
-            db.incr "#{partner}.#{day_ts}.up_preview.count", (err, reply) ->
-                res.render 'view_pic.html', {token: req.params.token}
+            res.render 'view_pic.html', {token: req.params.token}
         else
             res.redirect "../../file/#{token}"
 
