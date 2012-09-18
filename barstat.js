@@ -156,7 +156,9 @@
         chrome_count: 0,
         ff_count: 0,
         opera_count: 0,
-        safari_count: 0
+        safari_count: 0,
+        upload_count: 0,
+        preview_count: 0
       };
       get_partner_stats = function(partner, cb) {
         var multi;
@@ -170,6 +172,8 @@
         multi.get("" + partner + "." + day_ts + ".ff.u_count");
         multi.get("" + partner + "." + day_ts + ".opera.u_count");
         multi.get("" + partner + "." + day_ts + ".safari.u_count");
+        multi.get("" + partner + "." + day_ts + ".upload.count");
+        multi.get("" + partner + "." + day_ts + ".up_preview.count");
         return multi.exec(function(err, replies) {
           if (err) {
             cb(err);
@@ -183,6 +187,8 @@
           sum_reply.ff_count += parseInt(replies[6] || 0);
           sum_reply.opera_count += parseInt(replies[7] || 0);
           sum_reply.safari_count += parseInt(replies[8] || 0);
+          sum_reply.upload_count += parseInt(replies[9] || 0);
+          sum_reply.preview_count += parseInt(replies[10] || 0);
           return cb();
         });
       };
@@ -346,13 +352,14 @@
   });
 
   app.post('/bar_uploads/file/:token', function(req, res, next) {
-    var db, file, instid, partner, token,
+    var day_ts, db, file, instid, partner, token, ts, _ref,
       _this = this;
     db = utils.get_db_client();
     token = req.params.token;
     instid = req.body.instid;
     partner = req.body.partner;
     file = req.files.fm_file_upload;
+    _ref = utils.get_ts_and_day_ts(new Date()), ts = _ref[0], day_ts = _ref[1];
     console.log("new upload by " + instid + " of " + partner);
     if (file) {
       return db.hgetall("up." + token, function(err, reply) {
@@ -362,7 +369,9 @@
             path: file.path,
             type: file.type
           }, function(err, reply) {});
-          return res.send('ok');
+          return db.incr("" + partner + "." + day_ts + ".upload.count", function(err, reply) {
+            return res.send('ok');
+          });
         } else {
           return res.send('fail');
         }
@@ -378,8 +387,10 @@
     token = req.params.token;
     return db.hget("up." + token, 'type', function(err, reply) {
       if (reply && reply.indexOf('image') >= 0) {
-        return res.render('view_pic.html', {
-          token: req.params.token
+        return db.incr("" + partner + "." + day_ts + ".up_preview.count", function(err, reply) {
+          return res.render('view_pic.html', {
+            token: req.params.token
+          });
         });
       } else {
         return res.redirect("../../file/" + token);

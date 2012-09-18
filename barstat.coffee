@@ -125,6 +125,8 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
             ff_count: 0
             opera_count: 0
             safari_count: 0
+            upload_count: 0
+            preview_count: 0
 
         get_partner_stats = (partner, cb) =>
             multi = db.multi()
@@ -137,6 +139,8 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
             multi.get "#{partner}.#{day_ts}.ff.u_count"
             multi.get "#{partner}.#{day_ts}.opera.u_count"
             multi.get "#{partner}.#{day_ts}.safari.u_count"
+            multi.get "#{partner}.#{day_ts}.upload.count"
+            multi.get "#{partner}.#{day_ts}.up_preview.count"
             multi.exec (err, replies) =>
                 if err then cb err
                 sum_reply.u_count_total += parseInt(replies[0] || 0)
@@ -148,6 +152,8 @@ app.get '/bar_stat/api/:partner/usage', (req, res, next) ->
                 sum_reply.ff_count += parseInt(replies[6] || 0)
                 sum_reply.opera_count += parseInt(replies[7] || 0)
                 sum_reply.safari_count += parseInt(replies[8] || 0)
+                sum_reply.upload_count += parseInt(replies[9] || 0)
+                sum_reply.preview_count += parseInt(replies[10] || 0)
                 cb()
 
         db.smembers "partners", (err, partners) =>
@@ -263,16 +269,17 @@ app.post '/bar_uploads/file/:token', (req, res, next) ->
     instid = req.body.instid
     partner = req.body.partner
     file = req.files.fm_file_upload
+    [ts, day_ts] = utils.get_ts_and_day_ts(new Date())
     console.log "new upload by #{instid} of #{partner}"
 
-    # todo: cleanup token data and files
     if file
         db.hgetall "up.#{token}", (err, reply) =>
             if reply and (reply.instid is instid) and (reply.partner is partner)
                 db.hmset "up.#{token}", 
                         {name: file.name, path: file.path, type: file.type}, 
                         (err, reply) ->
-                    res.send 'ok'
+                    db.incr "#{partner}.#{day_ts}.upload.count", (err, reply) ->
+                        res.send 'ok'
             else 
                 res.send 'fail'
     else
@@ -284,7 +291,8 @@ app.get '/bar_uploads/view/:token', (req, res, next) ->
     token = req.params.token
     db.hget "up.#{token}", 'type', (err, reply) ->
         if reply and reply.indexOf('image') >= 0
-            res.render 'view_pic.html', {token: req.params.token}
+            db.incr "#{partner}.#{day_ts}.up_preview.count", (err, reply) ->
+                res.render 'view_pic.html', {token: req.params.token}
         else
             res.redirect "../../file/#{token}"
 
