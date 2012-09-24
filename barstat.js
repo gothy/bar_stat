@@ -53,8 +53,9 @@
   app.get('/bar_stat/session/:partner/:instid', function(req, res, next) {
     var browser, cts, day_ts, db, instid, partner, _ref, _ref1,
       _this = this;
+    console.log(req.cookies);
     instid = req.params.instid;
-    partner = req.params.partner;
+    partner = req.cookies.build || req.params.partner;
     browser = utils.get_browser_name((_ref = req.headers) != null ? _ref['user-agent'] : void 0);
     console.log("new session request: " + partner + ":" + instid);
     if (!instid || !partner) {
@@ -87,7 +88,7 @@
   app.post('/bar_stat/action/:action/:partner/', function(req, res, next) {
     var action, cts, day_ts, db, partner, _ref,
       _this = this;
-    partner = req.params.partner;
+    partner = req.cookies.build || req.params.partner;
     action = req.params.action;
     console.log("new action request: " + partner + ":" + action);
     if (!action || !partner) {

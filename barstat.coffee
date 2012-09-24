@@ -33,8 +33,9 @@ app.engine 'html', (path, options, fn) ->
 
 # new session
 app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
+    console.log req.cookies
     instid = req.params.instid
-    partner = req.params.partner
+    partner = req.cookies.build || req.params.partner
     browser = utils.get_browser_name req.headers?['user-agent']
     console.log "new session request: #{partner}:#{instid}"
     if not instid or not partner 
@@ -64,7 +65,7 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
 
 # new action
 app.post '/bar_stat/action/:action/:partner/', (req, res, next) ->
-    partner = req.params.partner
+    partner = req.cookies.build || req.params.partner
     action = req.params.action
     console.log "new action request: #{partner}:#{action}"
     if not action or not partner 
