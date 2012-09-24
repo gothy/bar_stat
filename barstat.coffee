@@ -33,7 +33,6 @@ app.engine 'html', (path, options, fn) ->
 
 # new session
 app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
-    console.log req.cookies
     instid = req.params.instid
     partner = req.cookies.build || req.params.partner
     browser = utils.get_browser_name req.headers?['user-agent']

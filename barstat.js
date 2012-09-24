@@ -53,7 +53,6 @@
   app.get('/bar_stat/session/:partner/:instid', function(req, res, next) {
     var browser, cts, day_ts, db, instid, partner, _ref, _ref1,
       _this = this;
-    console.log(req.cookies);
     instid = req.params.instid;
     partner = req.cookies.build || req.params.partner;
     browser = utils.get_browser_name((_ref = req.headers) != null ? _ref['user-agent'] : void 0);
