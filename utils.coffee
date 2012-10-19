@@ -1,6 +1,9 @@
 redis = require("redis")
 __ = require 'underscore'
 
+exports.clean_partner_cookie = (cookies)->
+    cookies.build = cookies.build.split('/')
+
 exports.get_db_client = get_db_client = __.memoize ->
     console.log 'creating redis client'
     redis.createClient()

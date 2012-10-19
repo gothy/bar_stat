@@ -34,6 +34,7 @@ app.engine 'html', (path, options, fn) ->
 # new session
 app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
     instid = req.params.instid
+    utils.clean_partner_cookie(req.cookies)
     if req.cookies.build and req.cookies.build isnt 'null'
         partner = req.cookies.build
     else
@@ -67,6 +68,7 @@ app.get '/bar_stat/session/:partner/:instid', (req, res, next) ->
 
 # new action
 app.post '/bar_stat/action/:action/:partner/', (req, res, next) ->
+    utils.clean_partner_cookie(req.cookies)
     if req.cookies.build and req.cookies.build isnt 'null'
         partner = req.cookies.build
     else
