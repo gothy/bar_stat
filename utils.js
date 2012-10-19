@@ -7,7 +7,9 @@
   __ = require('underscore');
 
   exports.clean_partner_cookie = function(cookies) {
-    return cookies.build = cookies.build.split('/')[0];
+    if (cookies.build) {
+      return cookies.build = cookies.build.split('/')[0];
+    }
   };
 
   exports.get_db_client = get_db_client = __.memoize(function() {
