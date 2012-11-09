@@ -230,7 +230,7 @@ app.get '/bar_stat/api/:partner/sumgraphdata', (req, res, next) ->
             
             multi.exec (err, replies) =>
                 if err then throw err
-                d_data = {name: moment(date).format("MMM Do 'YY"), data: []}
+                d_data = {name: moment(date).format("MMM Do"), data: []}
                 for i in [0..2*partners.length-1] by 2
                     d_data.data.push {
                         partner: partners[i/2], 

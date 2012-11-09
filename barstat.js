@@ -308,7 +308,7 @@
             throw err;
           }
           d_data = {
-            name: moment(date).format("MMM Do 'YY"),
+            name: moment(date).format("MMM Do"),
             data: []
           };
           for (i = _j = 0, _ref1 = 2 * partners.length - 1; _j <= _ref1; i = _j += 2) {
