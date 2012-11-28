@@ -89,6 +89,7 @@
         </div>
         <hr/>
         <div id="graphics" class="row">
+            <button id="disable_graph" style="display: none">Disable all</button>
             <div class="span12" id="graph">
             </div>
 
@@ -160,6 +161,15 @@
 
         var get_sum_graph_data = function() {
             clicks_chart.options.chart['type'] = 'column';
+
+            $('#disable_graph').show().on('click', function() {
+                $.each(chart.series, function(idx, s) {
+                    s.hide();
+                });
+                $.each(clicks_chart.series, function(idx, s) {
+                    s.hide();
+                });
+            });
             
             $.get('/bar_stat/api/<%=partner%>/sumgraphdata', function(data, status) {
                 var xAxis = [];
