@@ -235,6 +235,16 @@
         }
         return _results;
       })();
+      if (partner.indexOf('smi2vk') === 0) {
+        dates = (function() {
+          var _i, _results;
+          _results = [];
+          for (i = _i = 80; _i >= 1; i = --_i) {
+            _results.push(moment().subtract('days', i).toDate());
+          }
+          return _results;
+        })();
+      }
       daily_stats = [];
       db = utils.get_db_client();
       get_daily_stats = function(date, cb) {
@@ -255,7 +265,7 @@
           clicks = parseInt(replies[2]) || 0;
           returning_u = total_u - n_u;
           reply = {
-            name: moment(date).format("MMM Do 'YY"),
+            name: moment(date).format("MMM Do"),
             data: [returning_u, n_u, clicks]
           };
           daily_stats.push(reply);
