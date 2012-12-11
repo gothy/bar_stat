@@ -239,7 +239,7 @@
         dates = (function() {
           var _i, _results;
           _results = [];
-          for (i = _i = 80; _i >= 1; i = --_i) {
+          for (i = _i = 100; _i >= 1; i = --_i) {
             _results.push(moment().subtract('days', i).toDate());
           }
           return _results;

@@ -183,7 +183,7 @@ app.get '/bar_stat/api/:partner/graphdata', (req, res, next) ->
         d = new Date()
         dates = (moment().subtract('days', i).toDate() for i in [14..1])
         if partner.indexOf('smi2vk') is 0 
-            dates = (moment().subtract('days', i).toDate() for i in [80..1])
+            dates = (moment().subtract('days', i).toDate() for i in [100..1])
         daily_stats = []
         db = utils.get_db_client()
 
